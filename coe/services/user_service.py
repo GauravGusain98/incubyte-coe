@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
 from coe.models.user import User
-from coe.schemas.user import UserCreate, UserLogin, RemoveUser
+from coe.schemas.user import CreateUser, UserLogin, RemoveUser, UpdateUser
 
-def create_user(user: UserCreate, db: Session) -> User:
+def create_user(user: CreateUser, db: Session) -> User:
     db_user = User(
         first_name=user.first_name,
         last_name=user.last_name,
@@ -14,15 +14,31 @@ def create_user(user: UserCreate, db: Session) -> User:
     db.refresh(db_user)
     return db_user
 
-def login_user(loginCred: UserLogin, db: Session) -> User | None:
+def login_user(login_cred: UserLogin, db: Session) -> User | None:
     user = db.query(User).filter_by(
-        email=loginCred.email,
-        password=loginCred.password
+        email=login_cred.email,
+        password=login_cred.password
     ).first()
 
     return user
 
-def remove_user(user_data: RemoveUser, db: Session) -> None:
+def update_user(user_data: UpdateUser, db: Session) -> bool:
+    user = db.query(User).filter_by(id=user_data.id).first()
+
+    if not user:
+        return False
+
+    # Use dict and setattr to dynamically update only non-None fields
+    update_fields = user_data.dict(exclude_unset=True, exclude={"id"})
+    for field, value in update_fields.items():
+        setattr(user, field, value)
+
+    db.commit()
+    db.refresh(user) 
+
+    return True
+
+def remove_user(user_data: RemoveUser, db: Session) -> bool:
     user = db.query(User).filter(User.id == user_data.id).first()
     if user:
         db.delete(user)
