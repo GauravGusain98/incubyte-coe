@@ -18,4 +18,7 @@
     ```
     uvicorn main:app --reload
     ```
-
+5. Test APIs using Swagger on the below URL
+    ```
+    http://127.0.0.1:8000/docs 
+    ```
