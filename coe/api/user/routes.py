@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from coe.schemas.user import CreateUser, UserLogin, RemoveUser, UpdateUser, UserRegisterResponse, ErrorResponse, UserLoginResponse, UserUpdateResponse, UserDeleteResponse
 from coe.db.session import SessionLocal
