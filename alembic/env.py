@@ -4,7 +4,7 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 from alembic import context
 from coe.db.session import Base
-from coe.models.user import User
+from coe import models
 from config import settings
 
 from dotenv import load_dotenv
