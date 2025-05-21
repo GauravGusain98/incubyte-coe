@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
-from coe.schemas.user import CreateUser, UserLogin, RemoveUser, UpdateUser
+from coe.schemas.user import CreateUser, UserLogin, RemoveUser, UpdateUser, UserRegisterResponse, ErrorResponse, UserLoginResponse, UserUpdateResponse, UserDeleteResponse
 from coe.db.session import SessionLocal
 from coe.services.user_service import create_user, login_user, remove_user, update_user
 
@@ -13,12 +14,22 @@ def get_db():
     finally:
         db.close()
 
-@router.post("/register")
+@router.post(
+    "/register",
+    response_model=UserRegisterResponse,
+    responses={400: {"model": ErrorResponse}},
+    status_code=status.HTTP_201_CREATED
+)
 def register(user: CreateUser, db: Session = Depends(get_db)):
     new_user = create_user(user, db)
+    
     return {"message": "User registered successfully", "user_id": new_user.id}
 
-@router.post("/login")
+@router.post(
+    "/login",
+    response_model=UserLoginResponse,
+    responses={401: {"model": ErrorResponse}}
+)
 def login(user: UserLogin, db: Session = Depends(get_db)):
     user = login_user(user, db)
     if not user:
@@ -26,11 +37,16 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email or password"
         )
-
+    
     return {"message": "User authenticated successfully"}
 
-@router.put("/update-user", summary="Update user data by ID")
-def delete_user(user: UpdateUser, db: Session = Depends(get_db)):
+@router.put(
+    "/update-user",
+    summary="Update user data by ID",
+    response_model=UserUpdateResponse,
+    responses={404: {"model": ErrorResponse}}
+)
+def update_user(user: UpdateUser, db: Session = Depends(get_db)):
     success = update_user(user, db)
     if success:
         return {"message": "User data updated successfully"}
@@ -40,7 +56,12 @@ def delete_user(user: UpdateUser, db: Session = Depends(get_db)):
             detail="User not found"
         )
 
-@router.delete("/remove-user", summary="Remove a user by ID")
+@router.delete(
+    "/remove-user",
+    summary="Remove a user by ID",
+    response_model=UserDeleteResponse,
+    responses={404: {"model": ErrorResponse}}
+)
 def delete_user(user: RemoveUser, db: Session = Depends(get_db)):
     success = remove_user(user, db)
     if success:

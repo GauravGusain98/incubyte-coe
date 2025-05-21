@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 
+### Request Schemas
 class CreateUser(BaseModel):
     first_name: str
     last_name: str
@@ -19,3 +20,21 @@ class UserLogin(BaseModel):
 
 class RemoveUser(BaseModel):
     id: int
+
+
+### Response Schemas
+class UserRegisterResponse(BaseModel):
+    message: str
+    user_id: int
+
+class UserLoginResponse(BaseModel):
+    message: str
+
+class UserUpdateResponse(BaseModel):
+    message: str
+
+class UserDeleteResponse(BaseModel):
+    message: str
+
+class ErrorResponse(BaseModel):
+    detail: str
