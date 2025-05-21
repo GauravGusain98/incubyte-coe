@@ -14,7 +14,6 @@ class CreateUser(BaseModel):
 
 
 class UpdateUser(BaseModel):
-    id: UserID = Field(..., description="ID of the user to update")
     first_name: Optional[NameStr] = Field(None, description="Updated first name")
     last_name: Optional[NameStr] = Field(None, description="Updated last name")
     email: Optional[EmailStr] = Field(None, description="Updated email address")
@@ -24,11 +23,6 @@ class UpdateUser(BaseModel):
 class UserLogin(BaseModel):
     email: EmailStr = Field(..., description="User's email for login")
     password: PasswordStr = Field(..., description="User's password")
-
-
-class RemoveUser(BaseModel):
-    id: UserID = Field(..., description="ID of the user to remove")
-
 
 ### Response Schemas
 class UserRegisterResponse(BaseModel):

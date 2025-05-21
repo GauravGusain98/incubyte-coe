@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from coe.models.user import User
-from coe.schemas.user import CreateUser, UserLogin, RemoveUser, UpdateUser
+from coe.schemas.user import CreateUser, UserLogin, UpdateUser
 
 def create_user(user: CreateUser, db: Session) -> User:
     db_user = User(
@@ -22,8 +22,8 @@ def login_user(login_cred: UserLogin, db: Session) -> User | None:
 
     return user
 
-def update_user(user_data: UpdateUser, db: Session) -> bool:
-    user = db.query(User).filter_by(id=user_data.id).first()
+def update_user(user_id: int, user_data: UpdateUser, db: Session) -> bool:
+    user = db.query(User).filter_by(id=user_id).first()
 
     if not user:
         return False
@@ -38,8 +38,8 @@ def update_user(user_data: UpdateUser, db: Session) -> bool:
 
     return True
 
-def remove_user(user_data: RemoveUser, db: Session) -> bool:
-    user = db.query(User).filter(User.id == user_data.id).first()
+def remove_user(user_id: int, db: Session) -> bool:
+    user = db.query(User).filter(User.id == user_id).first()
     if user:
         db.delete(user)
         db.commit()

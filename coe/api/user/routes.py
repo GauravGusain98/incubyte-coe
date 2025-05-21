@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from coe.schemas.user import CreateUser, UserLogin, RemoveUser, UpdateUser, UserRegisterResponse, ErrorResponse, UserLoginResponse, UserUpdateResponse, UserDeleteResponse
+from coe.schemas.user import CreateUser, UserLogin, UpdateUser, UserRegisterResponse, ErrorResponse, UserLoginResponse, UserUpdateResponse, UserDeleteResponse
 from coe.db.session import SessionLocal
 from coe.services.user_service import create_user, login_user, remove_user, update_user
 
@@ -41,13 +41,13 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
     return {"message": "User authenticated successfully"}
 
 @router.put(
-    "/update-user",
+    "/user/{user_id}",
     summary="Update user data by ID",
     response_model=UserUpdateResponse,
     responses={404: {"model": ErrorResponse}}
 )
-def update_user_details(user: UpdateUser, db: Session = Depends(get_db)):
-    success = update_user(user, db)
+def update_user_details(user_id: int, user_data: UpdateUser, db: Session = Depends(get_db)):
+    success = update_user(user_id, user_data, db)
     if success:
         return {"message": "User data updated successfully"}
     else:
@@ -57,13 +57,13 @@ def update_user_details(user: UpdateUser, db: Session = Depends(get_db)):
         )
 
 @router.delete(
-    "/remove-user",
+    "/user/{user_id}",
     summary="Remove a user by ID",
     response_model=UserDeleteResponse,
     responses={404: {"model": ErrorResponse}}
 )
-def delete_user(user: RemoveUser, db: Session = Depends(get_db)):
-    success = remove_user(user, db)
+def delete_user(user_id: int, db: Session = Depends(get_db)):
+    success = remove_user(user_id, db)
     if success:
         return {"message": "User removed successfully"}
     else:
