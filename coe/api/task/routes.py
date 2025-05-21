@@ -4,7 +4,7 @@ from coe.db.session import SessionLocal
 from coe.services.task_service import create_task, find_task_by_id, update_task_details, remove_task
 from coe.schemas.task import CreateTaskRequestSchema, CreateTaskResponseSchema, GetTaskResponseSchema, ErrorResponse, UpdateTaskRequestSchema, UpdateTaskResponseSchema, DeleteTaskResponseSchema
 
-router = APIRouter(tags=["Tasks"])
+router = APIRouter(tags=["Tasks"], prefix="/task")
 
 def get_db():
     db = SessionLocal()
@@ -14,7 +14,8 @@ def get_db():
         db.close()
 
 @router.post(
-    "/task",
+    "/add",
+    summary="Create a new task",
     response_model=CreateTaskResponseSchema,
     status_code=status.HTTP_201_CREATED
 )
@@ -24,7 +25,8 @@ def create(task_data: CreateTaskRequestSchema, db: Session = Depends(get_db)):
     return {"message": "Task created successfully", "task_id": new_task.id}
 
 @router.get(
-    "/task/{task_id}", 
+    "/{task_id}", 
+    summary="Fetch a task by ID",
     response_model=GetTaskResponseSchema,
     responses={404: {"model": ErrorResponse}}
 )
@@ -40,7 +42,8 @@ def get_task(task_id: int, db: Session = Depends(get_db)):
     return task
 
 @router.put(
-    "/task/{task_id}", 
+    "/{task_id}", 
+    summary="Update a task details",
     response_model=UpdateTaskResponseSchema,
     responses={404: {"model": ErrorResponse}}
 )
@@ -56,8 +59,8 @@ def update_task(task_id: int, task_data: UpdateTaskRequestSchema, db: Session = 
         )
     
 @router.delete(
-    "/task/{task_id}",
-    summary="Remove a user by ID",
+    "/{task_id}",
+    summary="Remove a task by ID",
     response_model=DeleteTaskResponseSchema,
     responses={404: {"model": ErrorResponse}}
 )

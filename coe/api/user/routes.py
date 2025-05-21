@@ -4,7 +4,7 @@ from coe.schemas.user import CreateUser, UserLogin, UpdateUser, UserRegisterResp
 from coe.db.session import SessionLocal
 from coe.services.user_service import create_user, login_user, remove_user, update_user
 
-router = APIRouter(tags=["User"])
+router = APIRouter(tags=["User"], prefix="/user")
 
 def get_db():
     db = SessionLocal()
@@ -41,7 +41,7 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
     return {"message": "User authenticated successfully"}
 
 @router.put(
-    "/user/{user_id}",
+    "/{user_id}",
     summary="Update user data by ID",
     response_model=UserUpdateResponse,
     responses={404: {"model": ErrorResponse}}
@@ -57,7 +57,7 @@ def update_user_details(user_id: int, user_data: UpdateUser, db: Session = Depen
         )
 
 @router.delete(
-    "/user/{user_id}",
+    "/{user_id}",
     summary="Remove a user by ID",
     response_model=UserDeleteResponse,
     responses={404: {"model": ErrorResponse}}
