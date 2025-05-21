@@ -1,25 +1,33 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr, Field, constr, conint
+from typing import Optional
+
+NameStr = constr(strip_whitespace=True, min_length=1, max_length=50)
+PasswordStr = constr(min_length=8, max_length=128)
+UserID = conint(gt=0)
 
 ### Request Schemas
 class CreateUser(BaseModel):
-    first_name: str
-    last_name: str
-    email: str
-    password: str
+    first_name: NameStr = Field(..., description="First name of the user")
+    last_name: NameStr = Field(..., description="Last name of the user")
+    email: EmailStr = Field(..., description="User's email address")
+    password: PasswordStr = Field(..., description="User's password (8–128 chars)")
+
 
 class UpdateUser(BaseModel):
-    id: int
-    first_name: str | None = None
-    last_name: str | None = None
-    email: str | None = None
-    password: str | None = None
+    id: UserID = Field(..., description="ID of the user to update")
+    first_name: Optional[NameStr] = Field(None, description="Updated first name")
+    last_name: Optional[NameStr] = Field(None, description="Updated last name")
+    email: Optional[EmailStr] = Field(None, description="Updated email address")
+    password: Optional[PasswordStr] = Field(None, description="Updated password")
+
 
 class UserLogin(BaseModel):
-    email: str
-    password: str
+    email: EmailStr = Field(..., description="User's email for login")
+    password: PasswordStr = Field(..., description="User's password")
+
 
 class RemoveUser(BaseModel):
-    id: int
+    id: UserID = Field(..., description="ID of the user to remove")
 
 
 ### Response Schemas
