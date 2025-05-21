@@ -31,6 +31,7 @@ def register(user: CreateUser, db: Session = Depends(get_db)):
 )
 def login(user: UserLogin, db: Session = Depends(get_db)):
     user = login_user(user, db)
+
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -45,7 +46,7 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
     response_model=UserUpdateResponse,
     responses={404: {"model": ErrorResponse}}
 )
-def update_user(user: UpdateUser, db: Session = Depends(get_db)):
+def update_user_details(user: UpdateUser, db: Session = Depends(get_db)):
     success = update_user(user, db)
     if success:
         return {"message": "User data updated successfully"}
