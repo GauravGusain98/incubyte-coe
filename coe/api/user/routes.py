@@ -4,7 +4,7 @@ from coe.schemas.user import CreateUser, UserLogin, RemoveUser, UpdateUser, User
 from coe.db.session import SessionLocal
 from coe.services.user_service import create_user, login_user, remove_user, update_user
 
-router = APIRouter()
+router = APIRouter(tags=["User"])
 
 def get_db():
     db = SessionLocal()

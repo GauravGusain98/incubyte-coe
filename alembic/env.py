@@ -3,7 +3,7 @@ from logging.config import fileConfig
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 from alembic import context
-from coe.db.session import Base
+from coe.models.base import Base
 from coe import models
 from config import settings
 

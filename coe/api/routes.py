@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-router = APIRouter()
+router = APIRouter(tags=["Generic"])
 
 @router.get("/hello-world")
 def index():

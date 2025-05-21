@@ -29,7 +29,7 @@ def update_user(user_data: UpdateUser, db: Session) -> bool:
         return False
 
     # Use dict and setattr to dynamically update only non-None fields
-    update_fields = user_data.dict(exclude_unset=True, exclude={"id"})
+    update_fields = user_data.model_dump(exclude_unset=True, exclude={"id"})
     for field, value in update_fields.items():
         setattr(user, field, value)
 

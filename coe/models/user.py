@@ -1,7 +1,8 @@
 from sqlalchemy import Column, Integer, String, Text
-from coe.db.session import Base
+from sqlalchemy.orm import relationship
+from .base import Base, TimestampMixin
 
-class User(Base):
+class User(Base, TimestampMixin):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -9,3 +10,6 @@ class User(Base):
     last_name = Column(String(255), nullable=False)
     email = Column(String(255), unique=True, index=True, nullable=False)
     password = Column(Text, nullable=False)
+
+    tasks = relationship("Task", back_populates="assignee", foreign_keys="[Task.assignee_id]")
+    created_tasks = relationship("Task", back_populates="created_by", foreign_keys="[Task.created_by_id]")
