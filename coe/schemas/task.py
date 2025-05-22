@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, constr, conint, field_validator
-from typing import Optional
+from typing import Optional, List
 from enum import Enum
 from datetime import date, datetime
 
@@ -58,6 +58,10 @@ class GetTaskResponseSchema(BaseModel):
     priority: PriorityEnum
     created_at: datetime
     updated_on: Optional[datetime]
+
+class GetTaskListResponseSchema(BaseModel):
+    message: str
+    tasks: List[GetTaskResponseSchema]
 
 class UpdateTaskResponseSchema(BaseModel):
     message: str

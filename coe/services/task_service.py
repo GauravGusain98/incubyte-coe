@@ -21,6 +21,9 @@ def create_task(task_data: CreateTaskRequestSchema, db: Session) -> Task:
 def find_task_by_id(task_id: int, db: Session) -> Task:
     return db.query(Task).filter(Task.id == task_id).first()
 
+def get_tasks_list(db: Session) -> list[Task]:
+    return db.query(Task).all()
+
 def update_task_details(task_id:int, task_data: UpdateTaskRequestSchema, db: Session) -> bool:
     task = db.query(Task).filter_by(id=task_id).first()
 

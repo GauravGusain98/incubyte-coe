@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
 from coe.db.session import SessionLocal
 from coe.services.auth_service import get_current_user
-from coe.services.task_service import create_task, find_task_by_id, update_task_details, remove_task
-from coe.schemas.task import CreateTaskRequestSchema, CreateTaskResponseSchema, GetTaskResponseSchema, ErrorResponse, UpdateTaskRequestSchema, UpdateTaskResponseSchema, DeleteTaskResponseSchema
+from coe.services.task_service import create_task, find_task_by_id, update_task_details, remove_task, get_tasks_list
+from coe.schemas.task import CreateTaskRequestSchema, CreateTaskResponseSchema, GetTaskResponseSchema, ErrorResponse, UpdateTaskRequestSchema, UpdateTaskResponseSchema, DeleteTaskResponseSchema, GetTaskListResponseSchema
 
 router = APIRouter(tags=["Tasks"], prefix="/task", dependencies=[Depends(get_current_user)])
 
@@ -24,6 +24,16 @@ def create(task_data: CreateTaskRequestSchema, db: Session = Depends(get_db)):
     new_task = create_task(task_data, db)
     
     return {"message": "Task created successfully", "task_id": new_task.id}
+
+@router.get(
+    "/list",
+    summary="Get all the tasks",
+    response_model=GetTaskListResponseSchema,
+)
+def get_task_list(db: Session = Depends(get_db)):
+    tasks = get_tasks_list(db)
+    print(tasks)
+    return {"message": "Task fetched successfully", "tasks": tasks}
 
 @router.get(
     "/{task_id}", 
@@ -58,7 +68,7 @@ def update_task(task_id: int, task_data: UpdateTaskRequestSchema, db: Session = 
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Task not found"
         )
-    
+
 @router.delete(
     "/{task_id}",
     summary="Remove a task by ID",
