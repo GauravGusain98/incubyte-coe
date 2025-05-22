@@ -22,7 +22,6 @@ def custom_openapi():
 
     for path, path_item in openapi_schema["paths"].items():
         for method, operation in path_item.items():
-            print(method, operation)
             is_public = operation.get("is_public", False)
             
             if not is_public:
