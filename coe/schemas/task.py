@@ -14,10 +14,11 @@ class PriorityEnum(str, Enum):
     high = "high"
 
 class PaginationSchema(BaseModel):
-    skip: int
+    page: int
     limit: int
     count: int
     total: int
+    total_pages: int
 
 ### Request Schemas
 class CreateTaskRequestSchema(BaseModel):

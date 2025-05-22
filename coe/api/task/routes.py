@@ -32,20 +32,22 @@ def create(task_data: CreateTaskRequestSchema, db: Session = Depends(get_db)):
 )
 def get_task_list(
     db: Session = Depends(get_db),
-    skip: int = Query(0, ge=0, description="Number of items to skip"),
-    limit: int = Query(10, le=100, description="Number of items to return"),
+    page: int = Query(1, ge=1, description="Page number (starts at 1)"),
+    records_per_page: int = Query(10, le=100, description="Number of items per page"),
 ):
-    tasks = get_tasks_list(db, skip=skip, limit=limit)
+    skip = (page - 1) * records_per_page
+    tasks = get_tasks_list(db, skip=skip, limit=records_per_page)
     total = get_total_tasks(db)
 
     return {
         "message": "Task fetched successfully",
         "tasks": tasks,
         "pagination": {
-            "skip": skip,
-            "limit": limit,
+            "page": page,
+            "limit": records_per_page,
             "count": len(tasks),
             "total": total,
+            "total_pages": (total + records_per_page - 1) // records_per_page
         }
     }
 
