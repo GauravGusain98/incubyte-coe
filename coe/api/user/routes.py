@@ -17,7 +17,7 @@ def get_db():
     finally:
         db.close()
 
-@router.post("/token/refresh", summary="Get new access token using refresh token")
+@router.post("/token/refresh", summary="Get new access token using refresh token", openapi_extra={"is_public": True})
 def refresh_access_token(token: RefreshToken = Body(...)):
     try:
         payload = jwt.decode(token.refresh_token, settings.jwt_secret_key, algorithms=[settings.jwt_algorithm])
@@ -33,7 +33,8 @@ def refresh_access_token(token: RefreshToken = Body(...)):
     "/register",
     response_model=UserRegisterResponse,
     responses={400: {"model": ErrorResponse}},
-    status_code=status.HTTP_201_CREATED
+    status_code=status.HTTP_201_CREATED,
+    openapi_extra={"is_public": True}
 )
 def register(user: CreateUser, db: Session = Depends(get_db)):
     new_user = create_user(user, db)
@@ -43,7 +44,8 @@ def register(user: CreateUser, db: Session = Depends(get_db)):
 @router.post(
     "/login",
     response_model=UserLoginResponse,
-    responses={401: {"model": ErrorResponse}}
+    responses={401: {"model": ErrorResponse}},
+    openapi_extra={"is_public": True}
 )
 def login(user: UserLogin, db: Session = Depends(get_db)):
     token_data = login_user(user, db)
