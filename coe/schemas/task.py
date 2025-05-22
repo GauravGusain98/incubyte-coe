@@ -13,6 +13,12 @@ class PriorityEnum(str, Enum):
     medium = "medium"
     high = "high"
 
+class PaginationSchema(BaseModel):
+    skip: int
+    limit: int
+    count: int
+    total: int
+
 ### Request Schemas
 class CreateTaskRequestSchema(BaseModel):
     name: NameStr = Field(..., description="First name of the task")
@@ -62,6 +68,7 @@ class GetTaskResponseSchema(BaseModel):
 class GetTaskListResponseSchema(BaseModel):
     message: str
     tasks: List[GetTaskResponseSchema]
+    pagination: PaginationSchema
 
 class UpdateTaskResponseSchema(BaseModel):
     message: str

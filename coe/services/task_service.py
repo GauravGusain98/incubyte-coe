@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from coe.models.task import Task
 from coe.schemas.task import CreateTaskRequestSchema, UpdateTaskRequestSchema
+from typing import List
 
 def create_task(task_data: CreateTaskRequestSchema, db: Session) -> Task:
     db_task = Task(
@@ -21,8 +22,11 @@ def create_task(task_data: CreateTaskRequestSchema, db: Session) -> Task:
 def find_task_by_id(task_id: int, db: Session) -> Task:
     return db.query(Task).filter(Task.id == task_id).first()
 
-def get_tasks_list(db: Session) -> list[Task]:
-    return db.query(Task).all()
+def get_tasks_list(db: Session, skip: int = 0, limit: int = 10) -> List[Task]:
+    return db.query(Task).offset(skip).limit(limit).all()
+
+def get_total_tasks(db: Session) -> int:
+    return db.query(Task).count()
 
 def update_task_details(task_id:int, task_data: UpdateTaskRequestSchema, db: Session) -> bool:
     task = db.query(Task).filter_by(id=task_id).first()

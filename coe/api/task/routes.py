@@ -1,8 +1,8 @@
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, status, HTTPException, Query
 from sqlalchemy.orm import Session
 from coe.db.session import SessionLocal
 from coe.services.auth_service import get_current_user
-from coe.services.task_service import create_task, find_task_by_id, update_task_details, remove_task, get_tasks_list
+from coe.services.task_service import create_task, find_task_by_id, update_task_details, remove_task, get_tasks_list, get_total_tasks
 from coe.schemas.task import CreateTaskRequestSchema, CreateTaskResponseSchema, GetTaskResponseSchema, ErrorResponse, UpdateTaskRequestSchema, UpdateTaskResponseSchema, DeleteTaskResponseSchema, GetTaskListResponseSchema
 
 router = APIRouter(tags=["Tasks"], prefix="/task", dependencies=[Depends(get_current_user)])
@@ -30,10 +30,24 @@ def create(task_data: CreateTaskRequestSchema, db: Session = Depends(get_db)):
     summary="Get all the tasks",
     response_model=GetTaskListResponseSchema,
 )
-def get_task_list(db: Session = Depends(get_db)):
-    tasks = get_tasks_list(db)
-    print(tasks)
-    return {"message": "Task fetched successfully", "tasks": tasks}
+def get_task_list(
+    db: Session = Depends(get_db),
+    skip: int = Query(0, ge=0, description="Number of items to skip"),
+    limit: int = Query(10, le=100, description="Number of items to return"),
+):
+    tasks = get_tasks_list(db, skip=skip, limit=limit)
+    total = get_total_tasks(db)
+
+    return {
+        "message": "Task fetched successfully",
+        "tasks": tasks,
+        "pagination": {
+            "skip": skip,
+            "limit": limit,
+            "count": len(tasks),
+            "total": total,
+        }
+    }
 
 @router.get(
     "/{task_id}", 
