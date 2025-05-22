@@ -24,6 +24,9 @@ class UserLogin(BaseModel):
     email: EmailStr = Field(..., description="User's email for login")
     password: PasswordStr = Field(..., description="User's password")
 
+class RefreshToken(BaseModel):
+    refresh_token: str
+
 ### Response Schemas
 class UserRegisterResponse(BaseModel):
     message: str
@@ -31,6 +34,9 @@ class UserRegisterResponse(BaseModel):
 
 class UserLoginResponse(BaseModel):
     message: str
+    access_token: str
+    refresh_token: str
+    token_type: str
 
 class UserUpdateResponse(BaseModel):
     message: str

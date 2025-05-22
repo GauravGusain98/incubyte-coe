@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from coe.models.user import User
 from coe.schemas.user import CreateUser, UserLogin, UpdateUser
+from coe.services.auth_service import create_access_token, create_refresh_token
 import bcrypt
 
 def create_user(user: CreateUser, db: Session) -> User:
@@ -17,13 +18,24 @@ def create_user(user: CreateUser, db: Session) -> User:
     db.refresh(db_user)
     return db_user
 
-def login_user(login_cred: UserLogin, db: Session) -> User | None:
+def login_user(login_cred: UserLogin, db: Session) -> dict | None:
     user = db.query(User).filter_by(email=login_cred.email).first()
-
-    if bcrypt.checkpw(login_cred.password.encode(), user.password.encode()):
-        return user
     
-    return None
+    if not user:
+        return None
+
+    if not bcrypt.checkpw(login_cred.password.encode(), user.password.encode()):
+        return None
+    
+    token_data = {"user_id": user.id}
+    access_token = create_access_token(token_data)
+    refresh_token = create_refresh_token(token_data)
+
+    return {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "token_type": "bearer"
+    }
 
 def update_user(user_id: int, user_data: UpdateUser, db: Session) -> bool:
     user = db.query(User).filter_by(id=user_id).first()

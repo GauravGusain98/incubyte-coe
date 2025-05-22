@@ -7,6 +7,9 @@ class Settings(BaseSettings):
     db_host: str
     db_port: int
     db_name: str
+    jwt_secret_key: str
+    jwt_algorithm: str
+    access_token_expire_minutes: int
 
     @property
     def database_url(self):
