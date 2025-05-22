@@ -8,6 +8,11 @@ class PriorityEnum(enum.Enum):
     medium = "medium"
     high = "high"
 
+class StatusEnum(enum.Enum):
+    pending = "pending"
+    in_progress = "in_progress"
+    completed = "completed"
+
 class Task(Base, TimestampMixin):
     __tablename__ = "tasks"
 
@@ -18,7 +23,8 @@ class Task(Base, TimestampMixin):
     assignee_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True)
     due_date = Column(Date, nullable=False)
     start_date = Column(Date, nullable=True)
-    priority = Column(Enum(PriorityEnum, name="priority_enum"), nullable=False, default=PriorityEnum("low"))
+    priority = Column(Enum(PriorityEnum, name="priority_enum"), nullable=False, default=PriorityEnum.low)
+    status = Column(Enum(StatusEnum, name="status_enum"), nullable=False, default=StatusEnum.pending)
 
     assignee = relationship("User", back_populates="tasks", passive_deletes=True,  foreign_keys=[assignee_id])
     created_by = relationship("User", back_populates="created_tasks", passive_deletes=True, foreign_keys=[created_by_id])
