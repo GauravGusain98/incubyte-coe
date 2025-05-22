@@ -1,4 +1,5 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
+import os
 
 class Settings(BaseSettings):
     app_name: str = "COE FastAPI App"
@@ -10,15 +11,18 @@ class Settings(BaseSettings):
     jwt_secret_key: str
     jwt_algorithm: str
     access_token_expire_minutes: int
+    model_config = SettingsConfigDict(env_file=".env")
 
     @property
     def database_url(self):
+        print(os.getenv("DATABASE_URL"))
+        if os.getenv("DATABASE_URL"):
+            return os.getenv("DATABASE_URL")
+
         return (
             f"postgresql+psycopg2://{self.db_user}:{self.db_password}"
             f"@{self.db_host}:{self.db_port}/{self.db_name}"
         )
 
-    class Config:
-        env_file = ".env"
 
 settings = Settings()
