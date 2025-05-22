@@ -21,6 +21,12 @@ class PaginationSchema(BaseModel):
     total_pages: int
 
 ### Request Schemas
+
+class TaskFilters(BaseModel):
+    status: Optional[str] = None
+    priority: Optional[str] = None
+    search: Optional[str] = None
+
 class CreateTaskRequestSchema(BaseModel):
     name: NameStr = Field(..., description="First name of the task")
     description: str = Field(..., description="Description of the task")

@@ -3,7 +3,8 @@ from sqlalchemy.orm import Session
 from coe.db.session import SessionLocal
 from coe.services.auth_service import get_current_user
 from coe.services.task_service import create_task, find_task_by_id, update_task_details, remove_task, get_tasks_list, get_total_tasks
-from coe.schemas.task import CreateTaskRequestSchema, CreateTaskResponseSchema, GetTaskResponseSchema, ErrorResponse, UpdateTaskRequestSchema, UpdateTaskResponseSchema, DeleteTaskResponseSchema, GetTaskListResponseSchema
+from coe.schemas.task import CreateTaskRequestSchema, CreateTaskResponseSchema, GetTaskResponseSchema, ErrorResponse, UpdateTaskRequestSchema, UpdateTaskResponseSchema, DeleteTaskResponseSchema, GetTaskListResponseSchema, TaskFilters
+import math
 
 router = APIRouter(tags=["Tasks"], prefix="/task", dependencies=[Depends(get_current_user)])
 
@@ -34,11 +35,11 @@ def get_task_list(
     db: Session = Depends(get_db),
     page: int = Query(1, ge=1, description="Page number (starts at 1)"),
     records_per_page: int = Query(10, le=100, description="Number of items per page"),
+    filters: TaskFilters = Depends()
 ):
     skip = (page - 1) * records_per_page
-    tasks = get_tasks_list(db, skip=skip, limit=records_per_page)
-    total = get_total_tasks(db)
-
+    tasks, total_records = get_tasks_list(db, filters, skip=skip, limit=records_per_page)
+    
     return {
         "message": "Task fetched successfully",
         "tasks": tasks,
@@ -46,8 +47,8 @@ def get_task_list(
             "page": page,
             "limit": records_per_page,
             "count": len(tasks),
-            "total": total,
-            "total_pages": (total + records_per_page - 1) // records_per_page
+            "total": total_records,
+            "total_pages": math.ceil(total_records / records_per_page) if records_per_page else 1
         }
     }
 

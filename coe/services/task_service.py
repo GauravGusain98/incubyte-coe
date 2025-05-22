@@ -1,7 +1,8 @@
 from sqlalchemy.orm import Session
 from coe.models.task import Task
-from coe.schemas.task import CreateTaskRequestSchema, UpdateTaskRequestSchema
-from typing import List
+from coe.schemas.task import CreateTaskRequestSchema, UpdateTaskRequestSchema, TaskFilters
+from typing import List, Tuple
+from sqlalchemy import or_, func
 
 def create_task(task_data: CreateTaskRequestSchema, db: Session) -> Task:
     db_task = Task(
@@ -22,8 +23,31 @@ def create_task(task_data: CreateTaskRequestSchema, db: Session) -> Task:
 def find_task_by_id(task_id: int, db: Session) -> Task:
     return db.query(Task).filter(Task.id == task_id).first()
 
-def get_tasks_list(db: Session, skip: int = 0, limit: int = 10) -> List[Task]:
-    return db.query(Task).offset(skip).limit(limit).all()
+def apply_task_filters(queryset, filters: TaskFilters):
+    if filters.status:
+        queryset = queryset.filter(Task.status == filters.status)
+
+    if filters.priority:
+        queryset = queryset.filter(Task.priority == filters.priority)
+
+    if filters.search:
+        search_term = f"%{filters.search.lower()}%"
+        queryset = queryset.filter(
+            or_(
+                func.lower(Task.name).like(search_term),
+                func.lower(Task.description).like(search_term)
+            )
+        )
+
+    return queryset
+
+def get_tasks_list(db: Session, filters: TaskFilters, skip: int = 0, limit: int = 10,) -> Tuple[List[Task], int]:
+    queryset = db.query(Task)
+    queryset = apply_task_filters(queryset, filters)
+    total = queryset.count()
+    tasks = queryset.offset(skip).limit(limit).all()
+
+    return (tasks, total)
 
 def get_total_tasks(db: Session) -> int:
     return db.query(Task).count()
