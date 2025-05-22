@@ -25,10 +25,10 @@ def find_task_by_id(task_id: int, db: Session) -> Task:
 
 def apply_task_filters(queryset, filters: TaskFilters):
     if filters.status:
-        queryset = queryset.filter(Task.status == filters.status)
+        queryset = queryset.filter(Task.status == filters.status.lower())
 
     if filters.priority:
-        queryset = queryset.filter(Task.priority == filters.priority)
+        queryset = queryset.filter(Task.priority == filters.priority.lower())
 
     if filters.search:
         search_term = f"%{filters.search.lower()}%"
