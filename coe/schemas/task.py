@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, constr, conint, field_validator
-from typing import Optional, List
+from typing import Optional, List, Literal
 from enum import Enum
 from datetime import date, datetime
 
@@ -23,9 +23,13 @@ class PaginationSchema(BaseModel):
 ### Request Schemas
 
 class TaskFilters(BaseModel):
-    status: Optional[str] = None
-    priority: Optional[str] = None
+    status: Optional[Literal["pending", "in_progress", "completed"]] = None
+    priority: Optional[Literal["low", "medium", "high"]] = None
     search: Optional[str] = None
+
+class TaskSort(BaseModel):
+    sort_by: Optional[str] = None
+    sort_order: Optional[Literal["asc", "desc"]] = None
 
 class CreateTaskRequestSchema(BaseModel):
     name: NameStr = Field(..., description="First name of the task")

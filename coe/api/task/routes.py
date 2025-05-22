@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from coe.db.session import SessionLocal
 from coe.services.auth_service import get_current_user
 from coe.services.task_service import create_task, find_task_by_id, update_task_details, remove_task, get_tasks_list, get_total_tasks
-from coe.schemas.task import CreateTaskRequestSchema, CreateTaskResponseSchema, GetTaskResponseSchema, ErrorResponse, UpdateTaskRequestSchema, UpdateTaskResponseSchema, DeleteTaskResponseSchema, GetTaskListResponseSchema, TaskFilters
+from coe.schemas.task import CreateTaskRequestSchema, CreateTaskResponseSchema, GetTaskResponseSchema, ErrorResponse, UpdateTaskRequestSchema, UpdateTaskResponseSchema, DeleteTaskResponseSchema, GetTaskListResponseSchema, TaskFilters, TaskSort
 import math
 
 router = APIRouter(tags=["Tasks"], prefix="/task", dependencies=[Depends(get_current_user)])
@@ -35,10 +35,11 @@ def get_task_list(
     db: Session = Depends(get_db),
     page: int = Query(1, ge=1, description="Page number (starts at 1)"),
     records_per_page: int = Query(10, le=100, description="Number of items per page"),
-    filters: TaskFilters = Depends()
+    filters: TaskFilters = Depends(),
+    sort: TaskSort = Depends()
 ):
     skip = (page - 1) * records_per_page
-    tasks, total_records = get_tasks_list(db, filters, skip=skip, limit=records_per_page)
+    tasks, total_records = get_tasks_list(db, filters, sort, skip=skip, limit=records_per_page)
     
     return {
         "message": "Task fetched successfully",
