@@ -42,15 +42,14 @@ class CreateTaskRequestSchema(BaseModel):
 class UpdateTaskRequestSchema(BaseModel):
     name: Optional[NameStr] = Field(default=None)
     description: Optional[str] = Field(default=None)
-    assignee_id: Optional[ID]
+    assignee_id: Optional[ID] = Field(default=None)
     due_date: Optional[date] = Field(default=None)
-    start_date: Optional[date]
+    start_date: Optional[date] = Field(default=None)
     priority: Optional[PriorityEnum] = None
 
     @field_validator('name', 'description', 'due_date', mode='before')
     @classmethod
     def not_none_if_present(cls, value, field):
-        print(field)
         if value is None:
             # Raise error only if the field was actually passed with value null
             raise ValueError(f"{field.field_name} cannot be null")
