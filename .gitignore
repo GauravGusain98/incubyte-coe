@@ -1,5 +1,5 @@
 .venv/
-# *.pyc
+*.pyc
 .env
 .env.test
 __pycache__
