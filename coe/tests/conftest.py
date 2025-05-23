@@ -9,11 +9,9 @@ from alembic.config import Config
 from alembic import command
 
 from coe.services.auth_service import get_db
+from coe.db.session import engine, SessionLocal as TestingSessionLocal
 from config import settings
 from main import app
-
-engine = create_engine(settings.database_url)
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 @pytest.fixture(scope="session", autouse=True)
 def run_migrations():
