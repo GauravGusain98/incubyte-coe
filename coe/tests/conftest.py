@@ -2,15 +2,12 @@ import os
 os.environ["ENV"] = "test"
 
 import pytest
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 from fastapi.testclient import TestClient
 from alembic.config import Config
 from alembic import command
 
 from coe.services.auth_service import get_db
 from coe.db.session import engine, SessionLocal as TestingSessionLocal
-from config import settings
 from main import app
 
 @pytest.fixture(scope="session", autouse=True)
