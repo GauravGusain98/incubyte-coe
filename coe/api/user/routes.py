@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Body
 from sqlalchemy.orm import Session
+from coe.db.session import get_db
 from coe.schemas.user import CreateUser, UserLogin, UpdateUser, UserRegisterResponse, ErrorResponse, UserLoginResponse, UserUpdateResponse, UserDeleteResponse, RefreshToken
-from coe.db.session import SessionLocal
 from coe.services.user_service import create_user, login_user, remove_user, update_user
 from coe.services.auth_service import get_current_user, create_access_token
 from coe.models.user import User
@@ -9,13 +9,6 @@ from jose import JWTError, jwt
 from config import settings
 
 router = APIRouter(tags=["User"], prefix="/user")
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 @router.post("/token/refresh", summary="Get new access token using refresh token", openapi_extra={"is_public": True})
 def refresh_access_token(token: RefreshToken = Body(...)):
