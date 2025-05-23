@@ -102,4 +102,4 @@ def test_get_task_list(auth_client: TestClient):
     data = res.json()
     assert "tasks" in data
     assert "pagination" in data
-    assert data["pagination"]["count"] <= 2
+    assert data["pagination"]["count"] == 2
