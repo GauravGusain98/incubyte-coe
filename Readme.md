@@ -14,11 +14,28 @@
     ```sh
     uv pip install -r requirements.txt
     ```
-4. Run the application
+3. Copy the .env.example and create .env file
+4. Update the values in .env file according to your configuration
+5. Run migrations to create database table using thie command
+    ```sh
+    alembic upgrade head
+    ```
+5. Run the application
     ```
     uvicorn main:app --reload
     ```
-5. Test APIs using Swagger on the below URL
+6. Test APIs using Swagger on the below URL
     ```
     http://127.0.0.1:8000/docs 
     ```
+
+### Setup Automated Testing
+1. Create test database in Postgres
+
+2. Update the env variables in the .env.test file
+
+3. Run all test cases using this command
+    ```sh
+    pytest
+    ```
+
