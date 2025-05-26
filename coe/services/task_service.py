@@ -1,14 +1,15 @@
 from sqlalchemy.orm import Session
 from coe.models.task import Task
+from coe.models.user import User
 from coe.schemas.task import CreateTaskRequestSchema, UpdateTaskRequestSchema, TaskFilters, TaskSort
 from typing import List, Tuple
 from sqlalchemy import or_, func, asc, desc
 
-def create_task(task_data: CreateTaskRequestSchema, db: Session) -> Task:
+def create_task(task_data: CreateTaskRequestSchema, db: Session, current_user: User) -> Task:
     db_task = Task(
         name=task_data.name,
         description=task_data.description,
-        created_by_id=1,
+        created_by_id=current_user.id,
         assignee_id=task_data.assignee_id,
         due_date=task_data.due_date,
         start_date=task_data.start_date,
@@ -46,8 +47,9 @@ def apply_sorting(queryset, sort_by: str, sort_order: str):
     allowed_sort_fields = {
         "id": Task.id,
         "name": Task.name,
-        "due_date": Task.due_date,
-        "start_date": Task.start_date,
+        "dueDate": Task.due_date,
+        "startDate": Task.start_date,
+        "priority": Task.priority,
     }
 
     sort_column = allowed_sort_fields.get(sort_by)

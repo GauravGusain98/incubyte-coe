@@ -12,7 +12,15 @@ class Settings(BaseSettings):
     jwt_secret_key: str
     jwt_algorithm: str
     access_token_expire_minutes: int
+    refresh_token_expire_minutes: int
+    allowed_origins: str
     model_config = SettingsConfigDict(env_file=env_file_path, extra="allow")
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        # Converting comma separated allowed origins from .env to list
+        if isinstance(self.allowed_origins, str):
+            self.allowed_origins = [origin.strip() for origin in self.allowed_origins.split(",") if origin.strip()]
 
     @property
     def database_url(self):

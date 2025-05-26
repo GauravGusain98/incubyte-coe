@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, status, HTTPException, Query
 from sqlalchemy.orm import Session
 from coe.db.session import get_db
+from coe.models.user import User
 from coe.services.auth_service import get_current_user
 from coe.services.task_service import create_task, find_task_by_id, update_task_details, remove_task, get_tasks_list, get_total_tasks
 from coe.schemas.task import CreateTaskRequestSchema, CreateTaskResponseSchema, GetTaskResponseSchema, ErrorResponse, UpdateTaskRequestSchema, UpdateTaskResponseSchema, DeleteTaskResponseSchema, GetTaskListResponseSchema, TaskFilters, TaskSort
@@ -14,10 +15,11 @@ router = APIRouter(tags=["Tasks"], prefix="/task", dependencies=[Depends(get_cur
     response_model=CreateTaskResponseSchema,
     status_code=status.HTTP_201_CREATED
 )
-def create(task_data: CreateTaskRequestSchema, db: Session = Depends(get_db)):
-    new_task = create_task(task_data, db)
+def create(task_data: CreateTaskRequestSchema, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    new_task = create_task(task_data, db, current_user)
     
-    return {"message": "Task created successfully", "task_id": new_task.id}
+    result = {"message": "Task created successfully", "task_id": new_task.id}
+    return CreateTaskResponseSchema.model_validate(result)
 
 @router.get(
     "/list",
@@ -34,7 +36,7 @@ def get_task_list(
     skip = (page - 1) * records_per_page
     tasks, total_records = get_tasks_list(db, filters, sort, skip=skip, limit=records_per_page)
     
-    return {
+    result = {
         "message": "Task fetched successfully",
         "tasks": tasks,
         "pagination": {
@@ -45,6 +47,9 @@ def get_task_list(
             "total_pages": math.ceil(total_records / records_per_page) if records_per_page else 1
         }
     }
+
+    return GetTaskListResponseSchema.model_validate(result)
+
 
 @router.get(
     "/{task_id}", 
@@ -60,8 +65,9 @@ def get_task(task_id: int, db: Session = Depends(get_db)):
             status_code=status.HTTP_404_NOT_FOUND, 
             detail="Task not found"
         )
-    
-    return task
+    result = task
+
+    return GetTaskResponseSchema.model_validate(result)
 
 @router.put(
     "/{task_id}", 
@@ -73,7 +79,8 @@ def update_task(task_id: int, task_data: UpdateTaskRequestSchema, db: Session = 
     success = update_task_details(task_id, task_data, db)
     
     if success:
-        return {"message": "Task data updated successfully"}
+        result = {"message": "Task data updated successfully"}
+        return UpdateTaskResponseSchema.model_validate(result)
     else:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -89,7 +96,8 @@ def update_task(task_id: int, task_data: UpdateTaskRequestSchema, db: Session = 
 def delete_task(task_id: int, db: Session = Depends(get_db)):
     success = remove_task(task_id, db)
     if success:
-        return {"message": "Task removed successfully"}
+        result = {"message": "Task removed successfully"}
+        return DeleteTaskResponseSchema.model_validate(result)
     else:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

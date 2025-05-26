@@ -12,20 +12,21 @@ def custom_openapi():
         routes=app.routes,
     )
 
+    # Define cookie-based authentication
     openapi_schema["components"]["securitySchemes"] = {
-        "BearerAuth": {
-            "type": "http",
-            "scheme": "bearer",
-            "bearerFormat": "JWT",
+        "CookieAuth": {
+            "type": "apiKey",
+            "in": "cookie",
+            "name": "access_token",
         }
     }
 
+    # Apply security scheme to all non-public routes
     for path, path_item in openapi_schema["paths"].items():
         for method, operation in path_item.items():
             is_public = operation.get("is_public", False)
-            
             if not is_public:
-                operation["security"] = [{"BearerAuth": []}]
+                operation["security"] = [{"CookieAuth": []}]
             else:
                 operation.pop("security", None)
 

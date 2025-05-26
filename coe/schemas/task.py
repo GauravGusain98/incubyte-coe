@@ -1,4 +1,5 @@
-from pydantic import BaseModel, Field, constr, conint, field_validator
+from pydantic import Field, constr, conint, field_validator
+from coe.models.base import CamelModel
 from typing import Optional, List, Literal
 from enum import Enum
 from datetime import date, datetime
@@ -13,7 +14,12 @@ class PriorityEnum(str, Enum):
     medium = "medium"
     high = "high"
 
-class PaginationSchema(BaseModel):
+class StatusEnum(str, Enum):
+    pending = "pending"
+    in_progress = "in_progress"
+    completed = "completed"
+
+class PaginationSchema(CamelModel):
     page: int
     limit: int
     count: int
@@ -22,16 +28,16 @@ class PaginationSchema(BaseModel):
 
 ### Request Schemas
 
-class TaskFilters(BaseModel):
+class TaskFilters(CamelModel):
     status: Optional[Literal["pending", "in_progress", "completed"]] = None
     priority: Optional[Literal["low", "medium", "high"]] = None
     search: Optional[str] = None
 
-class TaskSort(BaseModel):
+class TaskSort(CamelModel):
     sort_by: Optional[str] = None
     sort_order: Optional[Literal["asc", "desc"]] = None
 
-class CreateTaskRequestSchema(BaseModel):
+class CreateTaskRequestSchema(CamelModel):
     name: NameStr = Field(..., description="First name of the task")
     description: str = Field(..., description="Description of the task")
     assignee_id: Optional[ID] = None
@@ -39,13 +45,14 @@ class CreateTaskRequestSchema(BaseModel):
     start_date: Optional[date] = None
     priority: Optional[PriorityEnum] = None
 
-class UpdateTaskRequestSchema(BaseModel):
+class UpdateTaskRequestSchema(CamelModel):
     name: Optional[NameStr] = Field(default=None)
     description: Optional[str] = Field(default=None)
     assignee_id: Optional[ID] = Field(default=None)
     due_date: Optional[date] = Field(default=None)
     start_date: Optional[date] = Field(default=None)
     priority: Optional[PriorityEnum] = None
+    status: Optional[StatusEnum] = None
 
     @field_validator('name', 'description', 'due_date', mode='before')
     @classmethod
@@ -56,14 +63,14 @@ class UpdateTaskRequestSchema(BaseModel):
         return value
 
 ### Response Schemas
-class CreateTaskResponseSchema(BaseModel):
+class CreateTaskResponseSchema(CamelModel):
     message: str
     task_id: int
 
-class UpdateTaskResponseSchema(BaseModel):
+class UpdateTaskResponseSchema(CamelModel):
     message: str
 
-class GetTaskResponseSchema(BaseModel):
+class GetTaskResponseSchema(CamelModel):
     id: int
     name: str
     description: str
@@ -72,19 +79,20 @@ class GetTaskResponseSchema(BaseModel):
     due_date: date
     start_date: Optional[date] = None
     priority: PriorityEnum
+    status: StatusEnum
     created_at: datetime
     updated_on: Optional[datetime]
 
-class GetTaskListResponseSchema(BaseModel):
+class GetTaskListResponseSchema(CamelModel):
     message: str
     tasks: List[GetTaskResponseSchema]
     pagination: PaginationSchema
 
-class UpdateTaskResponseSchema(BaseModel):
+class UpdateTaskResponseSchema(CamelModel):
     message: str
 
-class DeleteTaskResponseSchema(BaseModel):
+class DeleteTaskResponseSchema(CamelModel):
     message: str
 
-class ErrorResponse(BaseModel):
+class ErrorResponse(CamelModel):
     detail: str
