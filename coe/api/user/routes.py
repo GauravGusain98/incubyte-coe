@@ -33,7 +33,7 @@ def refresh_access_token(request: Request, response: Response):
             samesite="None",
             secure=True,
             path="/",
-            max_age=settings.access_token_expire_minutes
+            max_age=settings.access_token_expire_minutes * 60
         )
 
         result = {"message": "Access token refreshed successfully", "access_token": new_access_token}
@@ -83,7 +83,7 @@ def login(response: Response, user: UserLogin, db: Session = Depends(get_db)):
         httponly=True,
         secure=True,
         samesite="None",
-        max_age=settings.access_token_expire_minutes,
+        max_age=settings.access_token_expire_minutes * 60,
         path="/",
     )
     response.set_cookie(
@@ -92,7 +92,7 @@ def login(response: Response, user: UserLogin, db: Session = Depends(get_db)):
         httponly=True,
         secure=True,
         samesite="None",
-        max_age=settings.refresh_token_expire_minutes,
+        max_age=settings.refresh_token_expire_minutes * 60,
         path="/user/token/refresh",
     )
     
