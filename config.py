@@ -1,7 +1,18 @@
-from pydantic_settings import BaseSettings, SettingsConfigDict
 import os
+from dotenv import load_dotenv
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
-env_file_path = ".env.test" if os.getenv("ENV") == "test" else ".env"
+
+env = os.getenv("ENV", "development")
+if env == "test":
+    print('here')
+    load_dotenv(".env.test", override=True)
+else:
+    print('here 1')
+    load_dotenv(".env", override=True)
+
+env_file_path = ".env.test" if env == "test" else ".env"
+
 class Settings(BaseSettings):
     app_name: str = "COE FastAPI App"
     db_user: str

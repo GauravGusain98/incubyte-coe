@@ -17,6 +17,8 @@ def run_migrations():
     command.upgrade(alembic_cfg, "head")
     yield
     command.downgrade(alembic_cfg, "base")
+    if "ENV" in os.environ:
+        del os.environ["ENV"]
 
 
 @pytest.fixture(scope="function")
