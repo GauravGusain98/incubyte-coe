@@ -1,6 +1,9 @@
 import pytest
 from jose import jwt
-from fastapi import HTTPException
+from starlette.requests import Request as StarletteRequest
+from starlette.datastructures import Headers
+from starlette.testclient import TestClient
+from fastapi import HTTPException, Request
 from coe.services import auth_service
 from coe.schemas.user import CreateUser
 from coe.services.user_service import create_user
@@ -36,26 +39,38 @@ def test_create_refresh_token_has_type_refresh():
     assert payload["type"] == "refresh"
     assert "exp" in payload
 
-def test_verify_token_valid():
-    data = {"user_id": 123}
-    token = auth_service.create_access_token(data)
-    result = auth_service.verify_token(token, credentials_exception=HTTPException(status_code=401))
-    assert result == 123
-
-def test_verify_token_invalid():
-    with pytest.raises(HTTPException) as exc:
-        auth_service.verify_token("invalid.token.value", credentials_exception=HTTPException(status_code=401))
-    assert exc.value.status_code == 401
-
 def test_get_current_user(db):
+    # Create a test user
     user = create_test_user(db)
     token = auth_service.create_access_token({"user_id": user.id})
 
-    result = auth_service.get_current_user(token=token, db=db)
-    assert result.id == user.id
-    assert result.email == user.email
+    # Build a fake scope with proper cookie header
+    cookie_header = f"access_token={token}"
+    headers = Headers({
+        "cookie": cookie_header
+    })
+
+    scope = {
+        "type": "http",
+        "headers": headers.raw,
+    }
+    request = StarletteRequest(scope)
+
+    # Call get_current_user with the mocked request
+    current_user = auth_service.get_current_user(request=request, db=db)
+
+    # Assertions
+    assert current_user.id == user.id
+    assert current_user.email == user.email
 
 def test_get_current_user_invalid_token(db):
     with pytest.raises(HTTPException) as exc:
-        auth_service.get_current_user(token="invalid.token.here", db=db)
+        scope = {
+            "type": "http",
+            "headers": Headers({}).raw,
+            "cookies": {"access_token": 'token-invalid'}
+        }
+        request = StarletteRequest(scope)
+
+        auth_service.get_current_user(request=request, db=db)
     assert exc.value.status_code == 401

@@ -7,7 +7,7 @@ fake = Faker()
 
 @pytest.fixture
 def auth_client(client: TestClient):
-    """Creates and authenticates a user, returning a client with the auth header set."""
+    """Creates and authenticates a user, returning a client with the auth cookie set."""
     email = fake.unique.email()
     password = "secret123"
 
@@ -19,15 +19,20 @@ def auth_client(client: TestClient):
     })
 
     login_response = client.post("/user/login", json={"email": email, "password": password})
-    token = login_response.json()["access_token"]
-    client.headers.update({"Authorization": f"Bearer {token}"})
+    assert login_response.status_code == 200
+
+    # Simulate browser behavior: Set the cookie manually
+    token = login_response.cookies.get("access_token")
+    assert token is not None
+
+    client.cookies.set("access_token", token)
     return client
 
 def test_create_task(auth_client: TestClient):
     payload = {
         "name": "Test Task",
         "description": "Test task description",
-        "due_date": str(date.today() + timedelta(days=7)),
+        "dueDate": str(date.today() + timedelta(days=7)),
         "priority": "medium"
     }
 
@@ -35,16 +40,16 @@ def test_create_task(auth_client: TestClient):
     assert res.status_code == 201
     res_data = res.json()
     assert res_data["message"] == "Task created successfully"
-    assert "task_id" in res_data
+    assert "taskId" in res_data
 
 def test_get_task_by_id(auth_client: TestClient):
     payload = {
         "name": "Test Task Fetch",
         "description": "To fetch later",
-        "due_date": str(date.today() + timedelta(days=3)),
+        "dueDate": str(date.today() + timedelta(days=3)),
         "priority": "low"
     }
-    task_id = auth_client.post("/task/add", json=payload).json()["task_id"]
+    task_id = auth_client.post("/task/add", json=payload).json()["taskId"]
 
     res = auth_client.get(f"/task/{task_id}")
     assert res.status_code == 200
@@ -59,15 +64,15 @@ def test_update_task(auth_client: TestClient):
     create_payload = {
         "name": "Initial Task",
         "description": "Before update",
-        "due_date": str(date.today() + timedelta(days=3)),
+        "dueDate": str(date.today() + timedelta(days=3)),
         "priority": "low"
     }
-    task_id = auth_client.post("/task/add", json=create_payload).json()["task_id"]
+    task_id = auth_client.post("/task/add", json=create_payload).json()["taskId"]
 
     update_payload = {
         "name": "Updated Task",
         "description": "After update",
-        "due_date": str(date.today() + timedelta(days=5)),
+        "dueDate": str(date.today() + timedelta(days=5)),
         "priority": "high"
     }
     res = auth_client.put(f"/task/{task_id}", json=update_payload)
@@ -78,9 +83,9 @@ def test_delete_task(auth_client: TestClient):
     payload = {
         "name": "Task to delete",
         "description": "Will be deleted",
-        "due_date": str(date.today() + timedelta(days=1))
+        "dueDate": str(date.today() + timedelta(days=1))
     }
-    task_id = auth_client.post("/task/add", json=payload).json()["task_id"]
+    task_id = auth_client.post("/task/add", json=payload).json()["taskId"]
 
     delete_res = auth_client.delete(f"/task/{task_id}")
     assert delete_res.status_code == 200
@@ -94,7 +99,7 @@ def test_get_task_list(auth_client: TestClient):
         auth_client.post("/task/add", json={
             "name": f"Task {i}",
             "description": f"Description {i}",
-            "due_date": str(date.today() + timedelta(days=i))
+            "dueDate": str(date.today() + timedelta(days=i))
         })
 
     res = auth_client.get("/task/list?page=1&records_per_page=2")

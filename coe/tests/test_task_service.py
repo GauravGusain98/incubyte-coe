@@ -29,13 +29,13 @@ def test_create_task(db, sample_user):
     task_data = CreateTaskRequestSchema(
         name="Test Task",
         description="A test description",
-        assignee_id=sample_user.id,
+        assignee_id=None,
         due_date=date(2025, 6, 1),
         start_date=date(2025, 5, 20),
         priority=PriorityEnum.high
     )
 
-    task = task_service.create_task(task_data, db)
+    task = task_service.create_task(task_data, db, sample_user)
 
     assert task.id is not None, "Task ID should not be None"
     assert task.name == "Test Task"
