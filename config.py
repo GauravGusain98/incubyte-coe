@@ -5,10 +5,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 env = os.getenv("ENV", "development")
 if env == "test":
-    print('here')
     load_dotenv(".env.test", override=True)
 else:
-    print('here 1')
     load_dotenv(".env", override=True)
 
 env_file_path = ".env.test" if env == "test" else ".env"
