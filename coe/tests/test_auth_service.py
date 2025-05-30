@@ -40,11 +40,9 @@ def test_create_refresh_token_has_type_refresh():
     assert "exp" in payload
 
 def test_get_current_user(db):
-    # Create a test user
     user = create_test_user(db)
     token = auth_service.create_access_token({"user_id": user.id})
 
-    # Build a fake scope with proper cookie header
     cookie_header = f"access_token={token}"
     headers = Headers({
         "cookie": cookie_header
@@ -56,7 +54,6 @@ def test_get_current_user(db):
     }
     request = StarletteRequest(scope)
 
-    # Call get_current_user with the mocked request
     current_user = auth_service.get_current_user(request=request, db=db)
 
     # Assertions
